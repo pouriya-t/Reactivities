@@ -5,7 +5,6 @@ import {
 } from "../../../app/models/activity";
 //import { act } from "react-dom/test-utils";
 import { v4 as uuid } from "uuid";
-import ActivityStore from "../../../app/stores/activityStore";
 import { observer } from "mobx-react-lite";
 import { RouteComponentProps } from "react-router-dom";
 import { Form as FinalForm, Field } from "react-final-form";
@@ -21,6 +20,7 @@ import {
   composeValidators,
   hasLengthGreaterThan,
 } from "revalidate";
+import { RootStoreContext } from "../../../app/stores/rootStore";
 // import { min } from "date-fns";
 
 const validate = combineValidators({
@@ -46,13 +46,13 @@ const ActivityForm: React.FC<RouteComponentProps<DetailParams>> = ({
   match,
   history,
 }) => {
-  const activityStore = useContext(ActivityStore);
+  const rootStore = useContext(RootStoreContext);
   const {
     createActivity,
     editActivity,
     submitting,
     loadActivity,
-  } = activityStore;
+  } = rootStore.activityStore;
 
   const [activity, setActivity] = useState(new ActivityFormValues());
   const [loading, setLoading] = useState(false);
