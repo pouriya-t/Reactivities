@@ -1,6 +1,6 @@
 import { RootStore } from "./rootStore";
 import { IActivity } from "./../models/activity";
-import { observable, action, computed, runInAction, reaction } from "mobx";
+import { observable, action, computed, runInAction, reaction, toJS } from "mobx";
 import { SyntheticEvent } from "react";
 import agent from "../api/agent";
 import { history } from "../..";
@@ -71,7 +71,8 @@ export default class ActivityStore {
 
   @action createHubConnection = (activityId: string) => {
     this.hubConnection = new HubConnectionBuilder()
-      .withUrl("http://localhost:5000/chat", {
+      // .withUrl("http://localhost:5000/chat", {
+      .withUrl(process.env.REACT_APP_API_CHAT_URL! , {
         accessTokenFactory: () => this.rootStore.commonStore.token!,
       })
       .configureLogging(LogLevel.Information)
@@ -80,12 +81,12 @@ export default class ActivityStore {
     this.hubConnection
       .start()
       .then(() => console.log(this.hubConnection!.state))
-      .then(() => {
-        console.log("Attempting to join group");
-        this.hubConnection!.invoke("AddToGroup", activityId);
-      })
+      // .then(() => {
+      //   console.log("Attempting to join group");
+      //   this.hubConnection!.invoke("AddToGroup", activityId);
       .catch((error) => console.log("Error establishing connection: ", error));
 
+    // }
     this.hubConnection.on("ReceiveComment", (comment) => {
       runInAction(() => {
         this.activity!.comments.push(comment);
@@ -161,7 +162,7 @@ export default class ActivityStore {
     let activity = this.getActivity(id);
     if (activity) {
       this.activity = activity;
-      return activity;
+      return toJS(activity);
     } else {
       this.loadingInitial = true;
       try {
